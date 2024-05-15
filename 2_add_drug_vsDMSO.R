@@ -8,6 +8,7 @@ setwd("/Users/fraya/Documents/project/NRCM_TA")
 counts<-read.table("./counts/rawcounts_add_genesymbol.txt",header=T,row.names=1)
 head(counts)
 str(counts)
+blueYellow = c("1"="#352A86","2"="#343DAE","3"="#0262E0","4"="#1389D2","5"="#2DB7A3","6"="#A5BE6A","7"="#F8BA43","8"="#F6DA23","9"="#F8FA0D")
 
 condition <- factor(c(rep("CT",3),rep("DMSO",3),rep("H_R10",3),rep("R5",3)))
 colData <- data.frame(row.names=colnames(counts),condition=condition)
