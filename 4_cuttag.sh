@@ -64,11 +64,14 @@ plotDistToTSS(peakAnno,
 dev.off()
 
 # GO 
-gene<-as.data.frame(peakAnno)$SYMBOL
+data<- read.csv("/public/home/nieyg/project/NRCM_TA/cuttag/4_MACS2/Nor-PPARG_IgG_peaks_rn5.anno.csv")
+gene<- data$Gene.Name
+#gene<-as.data.frame(peakAnno)$SYMBOL
+
 gene.df <- bitr(gene, fromType = "SYMBOL",
                 toType = c("ENSEMBL", "ENTREZID"),
                 OrgDb = org.Rn.eg.db)
-ego <- enrichGO(gene.df$ENTREZID,
+ego_BP <- enrichGO(gene.df$ENTREZID,
                 keyType = 'ENTREZID',
                 OrgDb = org.Rn.eg.db,
                 ont = "BP", ###BP,MF,CC
@@ -77,9 +80,26 @@ ego <- enrichGO(gene.df$ENTREZID,
                 qvalueCutoff = 0.5,
                 readable = TRUE)
 ego
-pdf("Nor-PPARG_IgG_GO-BP.pdf")
-barplot(ego, showCategory=20)
+
+select<- c("GO:0007215","GO:0006536","GO:0010906","GO:0001676","GO:0015909","GO:0006631",
+    "GO:0006635","GO:2000191","GO:0042542","GO:0006801","GO:0042743","GO:0070301",
+    "GO:0042542","GO:0090322","GO:0036293")
+
+ego<- ego[ego$ID%in%select,]
+
+ego<- ego[order(ego$pvalue,decreasing=T),]
+ego$Description<- factor(ego$Description,levels=ego$Description)
+
+pdf("Nor-PPARG_IgG_GO-BP-select.pdf")
+ggplot(ego,aes(x=Description,y=Count,fill=-1*log10(pvalue))) + 
+      geom_bar(stat="identity",position = "dodge") +
+      coord_flip() + 
+      scale_fill_gradient(low = "blue",high = "red")+
+      theme_bw() 
 dev.off()
+
+
+
 write.csv(ego,"Nor-PPARG_IgG-GO-BP.csv")
 write.csv(as.data.frame(peakAnno),"Nor-PPARG_IgG-cuttag-peak.annotation.csv",row.names = F)
 
@@ -163,6 +183,7 @@ plotDistToTSS(peakAnno,
               title="Distribution of Nor-PPARG_Hyp-PPARG-binding loci\nrelative to TSS")
 dev.off()
 
+
 # GO 
 gene<-as.data.frame(peakAnno)$SYMBOL
 gene.df <- bitr(gene, fromType = "SYMBOL",
@@ -182,6 +203,12 @@ barplot(ego, showCategory=20)
 dev.off()
 write.csv(ego,"Nor-PPARG_Hyp-PPARG-GO-BP.csv")
 write.csv(as.data.frame(peakAnno),"Nor-PPARG_Hyp-PPARG-cuttag-peak.annotation.csv",row.names = F)
+
+
+nohup annotatePeaks.pl Nor-PPARG_IgG_peaks_homer.tmp  rn4 >Nor-PPARG_IgG_peaks_rn4
+
+
+
 
 
 
